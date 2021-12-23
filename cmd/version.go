@@ -19,13 +19,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package main
+package cmd
 
-import "github.com/acehinnnqru/gclone/cmd"
+import (
+	"fmt"
 
-func main() {
-	// set version
-	cmd.SetVersion(Version)
+	"github.com/spf13/cobra"
+)
 
-	cmd.Execute()
+func SetVersion(v string) {
+	_Version = v
+}
+
+var _Version = ""
+
+// versionCmd represents the version command
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "show gclone version",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println(fmt.Sprintf("gclone version %v", _Version))
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(versionCmd)
 }
