@@ -1,11 +1,13 @@
 package g
 
 import (
-	"fmt"
-	"gopkg.in/errgo.v2/errors"
+	"bytes"
+	"log"
 	"os/exec"
 	"runtime"
 	"strings"
+
+	"gopkg.in/errgo.v2/errors"
 )
 
 func Clone(u string, target string) error {
@@ -26,16 +28,14 @@ func clone(addr Address, target string) error {
 	if runtime.GOOS == "windows" {
 		cmd = exec.Command("cmd", "/c", strings.Join(cmdArgs, " "))
 	}
-	cmd.Start()
-	if e := cmd.Wait(); e != nil {
-		stdErr, err := cmd.CombinedOutput()
-		var msg string
-		if err == nil {
-			msg = fmt.Sprintf("%v", stdErr)
-		} else {
-			msg = err.Error()
-		}
-		return errors.Note(e, nil, msg)
+	log.Println(cmd.String())
+
+	stdErr, stdOut := new(bytes.Buffer), new(bytes.Buffer)
+	cmd.Stderr = stdErr
+	cmd.Stdout = stdOut
+
+	if e := cmd.Run(); e != nil {
+		return errors.Note(e, nil, stdErr.String())
 	}
 	return nil
 }

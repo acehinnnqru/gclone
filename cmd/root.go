@@ -23,10 +23,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/acehinnnqru/gclone/src/gclone"
 	"log"
 	"os"
 
+	"github.com/acehinnnqru/gclone/src/gclone"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -34,8 +34,7 @@ import (
 var cfgFile string
 
 var global = struct {
-	Root         string
-	Repositories []string
+	Root string `json:"root" yaml:"root"`
 }{}
 
 // rootCmd represents the base command when called without any subcommands
@@ -47,11 +46,11 @@ var rootCmd = &cobra.Command{
 }
 
 func rootRun(cmd *cobra.Command, args []string) {
-	global.Repositories = args
-	log.Println(global.Root, global.Repositories)
+	viper.Unmarshal(&global)
+	log.Println(global.Root, args)
 	gclone.Clone(gclone.Option{
 		Root:         global.Root,
-		Repositories: global.Repositories,
+		Repositories: args,
 	})
 }
 
@@ -68,7 +67,8 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gclone.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&global.Root, "root", "r", "", "--root")
+	rootCmd.Flags().StringVarP(&global.Root, "root", "r", "", "--root")
+	viper.BindPFlag("root", rootCmd.Flags().Lookup("root"))
 }
 
 // initConfig reads in config file and ENV variables if set.
